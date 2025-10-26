@@ -317,8 +317,8 @@
                     <thead>
                       <tr className="text-left text-gray-800">
                         <th className="px-3 py-2 text-center w-11/12">Item</th>
-                        <th className="px-3 py-2 text-right w-20">KRW</th>
-                        <th className="px-3 py-2 text-right w-20">{currency}</th>
+                        <th className="px-3 py-2 text-right w-32">KRW</th>
+                        <th className="px-3 py-2 text-right w-32">{currency}</th>
                         {/*<th className="px-3 py-2 text-right w-auto"></th>*/}
                         <th className="px-3 py-2 no-print w-20"></th>
                       </tr>
@@ -335,7 +335,7 @@
                               <textarea rows={1} className="w-full border rounded-lg p-2 resize-none break-words leading-tight" value={it.name} onChange={e=>updateItem(idx,{name:e.target.value})} />
                               <input className="w-full mt-1 border rounded-lg p-2 text-xs text-gray-600" placeholder="" value={it.note} onChange={e=>updateItem(idx,{note:e.target.value})} />
                             </td>
-                            <td className="px-3 py-2 text-right w-20">
+                            <td className="px-3 py-2 text-right w-32">
                               {/* Editable KRW per-item (supports simple expressions) */}
                               <input
                                 type="text"
