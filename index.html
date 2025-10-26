@@ -186,6 +186,15 @@
       const discountCurr = toCurr(discountKRW);
       const total = toCurr(totalKRW);
 
+      // Editable total fields (user can override the shown final price).
+      const [editTotalKRW, setEditTotalKRW] = useState(String(Math.round(totalKRW)));
+      const [editTotalCurr, setEditTotalCurr] = useState(String(total));
+      // Keep the edit boxes in sync when underlying values change (but allow temporary edits)
+      useEffect(() => {
+        setEditTotalKRW(String(Math.round(totalKRW)));
+        setEditTotalCurr(String(total));
+      }, [totalKRW, total, currency]);
+
       const copyAsMarkdown = () => {
         const lines=[];
         lines.push(`# 견적서`);
@@ -383,8 +392,33 @@
                       <tr>
                         <td className="px-3 pt-2"></td>
                         <td className="px-3 pt-2 text-right text-gray-900">Subtotal</td>
-                        <td className="px-3 pt-2 text-right text-2xl text-gray-700 font-bold w-28">{formatMoney(totalKRW,'KRW')}</td>
-                        <td className="px-3 pt-2 text-right text-2xl text-green-600 font-bold w-28">{formatMoney(total,currency)}</td>
+                          <td className="px-3 pt-2 text-right text-2xl text-gray-700 font-bold w-28">
+                            <input
+                              className="w-full text-right text-2xl text-gray-700 font-bold bg-transparent border-0"
+                              value={editTotalKRW}
+                              onChange={e => setEditTotalKRW(e.target.value)}
+                              onBlur={() => {
+                                // When user edits the KRW total, compute required discount (amount) to reach it
+                                const desired = Number(String(editTotalKRW).replace(/[^0-9.\-]/g, '')) || 0;
+                                const requiredDiscount = Math.max(0, subtotalKRW + taxKRW - Math.round(desired));
+                                setDiscount({ type: 'amount', value: Math.round(requiredDiscount) });
+                              }}
+                            />
+                          </td>
+                          <td className="px-3 pt-2 text-right text-2xl text-green-600 font-bold w-28">
+                            <input
+                              className="w-full text-right text-2xl text-green-600 font-bold bg-transparent border-0"
+                              value={editTotalCurr}
+                              onChange={e => setEditTotalCurr(e.target.value)}
+                              onBlur={() => {
+                                // When user edits the foreign-currency total, convert back to KRW and compute required discount
+                                const desiredC = Number(String(editTotalCurr).replace(/[^0-9.\-]/g, '')) || 0;
+                                const desiredKRW = Math.round(desiredC / (rate || 1));
+                                const requiredDiscount = Math.max(0, subtotalKRW + taxKRW - desiredKRW);
+                                setDiscount({ type: 'amount', value: Math.round(requiredDiscount) });
+                              }}
+                            />
+                          </td>
                         <td></td>
                       </tr>
                     </tfoot>
