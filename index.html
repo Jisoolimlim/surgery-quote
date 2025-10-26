@@ -52,11 +52,12 @@
       { id: '추가코', name: 'Extra nose augmentation', baseKRW: 770000 },
       { id: '기증늑', name: 'Donated rib cartilage', baseKRW: 1540000 },
       { id: '자가늑', name: 'Autologous rib cartilage', baseKRW: 3300000 },
-      { id: '코첫수술', name: 'Rhinoplasty', baseKRW: 4400000 },
+      { id: '코첫수술', name: 'Rhinoplasty', baseKRW: 3300000 },
       { id: '코재수술', name: 'Revision Rhinoplasty', baseKRW: 5500000 },
       { id: '풀지방이식', name: 'Full facial fat grafting', baseKRW: 2200000 },
       { id: '미세지방이식', name: 'Micro fat grafting', baseKRW: 1320000 },
       { id: '이마거상', name: 'Forehead lift', baseKRW: 4950000 },
+      { id: '안면거상', name: 'Facelift', baseKRW: 12100000 },
       { id: '이마축소', name: 'Forehead reduction', baseKRW: 3300000 },
       { id: '줄기세포30', name: 'Stem cell (30cc/skin)', baseKRW: 1320000 },
       { id: '줄기세포60', name: 'Stem cell (60cc/skin)', baseKRW: 2200000 },
@@ -78,8 +79,19 @@
       { id: '엘라비에리투오', name: 'Elravie Re2O (1syringe)', baseKRW: 770000 },
     ];
 
-    // 1 KRW → target currency
-    const DEFAULT_FX = { KRW: 1, USD: 0.00073, EUR: 0.00067, GBP: 0.00052, AUD: 0.00115, IDR: 11.3 };
+    // 1 KRW → target currency (approx defaults; update via Auto)
+    const DEFAULT_FX = {
+      KRW: 1,
+      USD: 0.00073,
+      EUR: 0.00067,
+      GBP: 0.00052,
+      AUD: 0.00115,
+      SGD: 0.0010,
+      JPY: 0.11,
+      CNY: 0.0053,
+      HKD: 0.0058,
+      IDR: 11.3,
+    };
 
     const CURRENCY_FORMAT = {
       KRW: { locale: 'ko-KR', currency: 'KRW', digits: 0 },
@@ -87,6 +99,10 @@
       EUR: { locale: 'de-DE', currency: 'EUR', digits: 2 },
       GBP: { locale: 'en-GB', currency: 'GBP', digits: 2 },
       AUD: { locale: 'en-AU', currency: 'AUD', digits: 2 },
+      SGD: { locale: 'en-SG', currency: 'SGD', digits: 2 },
+      JPY: { locale: 'ja-JP', currency: 'JPY', digits: 0 },
+      CNY: { locale: 'zh-CN', currency: 'CNY', digits: 2 },
+      HKD: { locale: 'zh-HK', currency: 'HKD', digits: 2 },
       IDR: { locale: 'id-ID', currency: 'IDR', digits: 0 },
     };
 
@@ -122,13 +138,13 @@
         setCustomPriceKRW('');
       };
 
-      async function autoFetchRates(setFx, fx){
+  async function autoFetchRates(setFx, fx){
         try{
           const res = await fetch('https://api.exchangerate-api.com/v4/latest/KRW');
           const data = await res.json();
           if(data && data.rates){
             const next = { KRW: 1 };
-            ['USD', 'EUR', 'GBP', 'AUD', 'IDR'].forEach(curr => {
+            ['USD', 'EUR', 'GBP', 'AUD', 'SGD', 'JPY', 'CNY', 'HKD', 'IDR'].forEach(curr => {
               if (data.rates[curr]) {
                 next[curr] = data.rates[curr];
               }
