@@ -360,7 +360,7 @@
                                 }}
                               />
                             </td>
-                            <td className="px-3 py-2 text-right w-20">{formatMoney(unitC, currency)}</td>
+                            <td className="px-3 py-2 text-right w-64">{formatMoney(unitC, currency)}</td>
                             
                             <td className="px-3 py-2 no-print text-right w-20"><button onClick={()=>removeItem(idx)} className="text-rose-600 hover:underline">delete</button></td>
                           </tr>
@@ -387,7 +387,7 @@
                       <tr>
                         <td className="px-3 pt-2"></td>
                         <td className="px-3 pt-2 text-right text-gray-900">Final (editable)</td>
-                        <td className="px-3 pt-2 text-right text-2xl text-gray-700 font-bold w-28">
+                        <td className="px-3 pt-2 text-right text-2xl text-gray-700 font-bold w-64">
                           <input
                             type="text"
                             className="w-full text-right text-2xl text-gray-700 font-bold bg-white border rounded px-2 py-0.5 focus:outline-none focus:ring-2 focus:ring-indigo-300"
@@ -417,7 +417,7 @@
                             }}
                           />
                         </td>
-                        <td className="px-3 pt-2 text-right text-2xl text-green-600 font-bold w-28">{formatMoney(total,currency)}</td>
+                        <td className="px-3 pt-2 text-right text-2xl text-green-600 font-bold w-64">{formatMoney(total,currency)}</td>
                         <td></td>
                       </tr>
                     </tfoot>
