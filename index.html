@@ -313,10 +313,10 @@
 
 
                 <section>
-                  <table className="w-800 text-sm border-separate border-spacing-y-2">
+                  <table className="w-full text-sm border-separate border-spacing-y-2">
                     <thead>
                       <tr className="text-left text-gray-800">
-                        <th className="px-3 py-2 text-center w-11/12">Item</th>
+                        <th className="px-3 py-2 text-left">Item</th>
                         <th className="px-3 py-2 text-right w-64">KRW</th>
                         <th className="px-3 py-2 text-right w-64">{currency}</th>
                         {/*<th className="px-3 py-2 text-right w-auto"></th>*/}
@@ -331,7 +331,7 @@
                         const lineKRW = it.qty * it.unitKRW; const unitC = toCurr(it.unitKRW); const lineC = toCurr(lineKRW);
                         return (
                           <tr key={idx} className="align-top">
-                            <td className="px-3 py-2 w-11/12">
+                            <td className="px-3 py-2">
                               <textarea rows={1} className="w-full border rounded-lg p-2 resize-none break-words leading-tight" value={it.name} onChange={e=>updateItem(idx,{name:e.target.value})} />
                               <input className="w-full mt-1 border rounded-lg p-2 text-xs text-gray-600" placeholder="" value={it.note} onChange={e=>updateItem(idx,{note:e.target.value})} />
                             </td>
