@@ -317,8 +317,8 @@
                     <thead>
                       <tr className="text-left text-gray-800">
                         <th className="px-3 py-2 text-center w-11/12">Item</th>
-                        <th className="px-3 py-2 text-right w-32">KRW</th>
-                        <th className="px-3 py-2 text-right w-32">{currency}</th>
+                        <th className="px-3 py-2 text-right w-34">KRW</th>
+                        <th className="px-3 py-2 text-right w-34">{currency}</th>
                         {/*<th className="px-3 py-2 text-right w-auto"></th>*/}
                         <th className="px-3 py-2 no-print w-20"></th>
                       </tr>
@@ -372,7 +372,7 @@
                         <tr>
                           <td className="px-3"></td>
                           <td className="px-3 text-right font-semibold w-28">- {formatMoney(discountKRW,'KRW')}</td>
-                          <td className="px-3 text-right font-semibold w-28">- {formatMoney(discountCurr,currency)}</td>
+                          <td className="px-3 text-right font-semibold w-34">- {formatMoney(discountCurr,currency)}</td>
                           <td className="px-3 text-right text-gray-600"> {discount.type==='percent'? `(${discount.value}%)` : ''}</td>
                           <td></td>
                         </tr>
