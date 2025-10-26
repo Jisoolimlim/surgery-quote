@@ -314,13 +314,19 @@
 
                 <section>
                   <table className="w-full text-sm border-separate border-spacing-y-2">
+                    <colgroup>
+                      <col className="w-[60%]" />
+                      <col className="w-[18%]" />
+                      <col className="w-[18%]" />
+                      <col className="w-[4%]" />
+                    </colgroup>
                     <thead>
                       <tr className="text-left text-gray-800">
-                        <th className="px-3 py-2 text-left w-1/2 md:w-[55%]">Item</th>
-                        <th className="px-3 py-2 text-right w-64">KRW</th>
-                        <th className="px-3 py-2 text-right w-64">{currency}</th>
+                        <th className="px-3 py-2 text-left">Item</th>
+                        <th className="px-3 py-2 text-right">KRW</th>
+                        <th className="px-3 py-2 text-right">{currency}</th>
                         {/*<th className="px-3 py-2 text-right w-auto"></th>*/}
-                        <th className="px-3 py-2 no-print w-20"></th>
+                        <th className="px-3 py-2 no-print"></th>
                       </tr>
                     </thead>
                     <tbody>
@@ -331,11 +337,11 @@
                         const lineKRW = it.qty * it.unitKRW; const unitC = toCurr(it.unitKRW); const lineC = toCurr(lineKRW);
                         return (
                           <tr key={idx} className="align-top">
-                            <td className="px-3 py-2 w-1/2 md:w-[55%] min-w-[320px]">
+                            <td className="px-3 py-2 min-w-[320px]">
                               <textarea rows={1} className="w-full border rounded-lg p-2 resize-none break-words leading-tight" value={it.name} onChange={e=>updateItem(idx,{name:e.target.value})} />
                               <input className="w-full mt-1 border rounded-lg p-2 text-xs text-gray-600" placeholder="" value={it.note} onChange={e=>updateItem(idx,{note:e.target.value})} />
                             </td>
-                            <td className="px-3 py-2 text-right w-64">
+                            <td className="px-3 py-2 text-right">
                               {/* Editable KRW per-item (supports simple expressions) */}
                               <input
                                 type="text"
@@ -360,9 +366,9 @@
                                 }}
                               />
                             </td>
-                            <td className="px-3 py-2 text-right w-64">{formatMoney(unitC, currency)}</td>
+                            <td className="px-3 py-2 text-right">{formatMoney(unitC, currency)}</td>
                             
-                            <td className="px-3 py-2 no-print text-right w-20"><button onClick={()=>removeItem(idx)} className="text-rose-600 hover:underline">delete</button></td>
+                            <td className="px-3 py-2 no-print text-right"><button onClick={()=>removeItem(idx)} className="text-rose-600 hover:underline">delete</button></td>
                           </tr>
                         );
                       })}
@@ -370,24 +376,21 @@
                     <tfoot>
                       {(Number(discount.value)||0)>0 && (
                         <tr>
-                          <td className="px-3"></td>
-                          <td className="px-3 text-right font-semibold w-64">- {formatMoney(discountKRW,'KRW')}</td>
-                          <td className="px-3 text-right font-semibold w-64">- {formatMoney(discountCurr,currency)}</td>
-                          <td className="px-3 text-right text-gray-600"> {discount.type==='percent'? `(${discount.value}%)` : ''}</td>
+                          <td className="px-3 text-right text-gray-600">Discount {discount.type==='percent'? `(${discount.value}%)` : ''}</td>
+                          <td className="px-3 text-right font-semibold">- {formatMoney(discountKRW,'KRW')}</td>
+                          <td className="px-3 text-right font-semibold">- {formatMoney(discountCurr,currency)}</td>
                           <td></td>
                         </tr>
                       )}
                       <tr>
-                        <td className="px-3 pt-2"></td>
                         <td className="px-3 pt-2 text-right text-gray-900">Subtotal</td>
-                        <td className="px-3 pt-2 text-right text-2xl text-gray-700 font-bold w-64">{formatMoney(subtotalKRW,'KRW')}</td>
-                        <td className="px-3 pt-2 text-right text-2xl text-green-600 font-bold w-64">{formatMoney(subtotal,currency)}</td>
+                        <td className="px-3 pt-2 text-right text-2xl text-gray-700 font-bold">{formatMoney(subtotalKRW,'KRW')}</td>
+                        <td className="px-3 pt-2 text-right text-2xl text-green-600 font-bold">{formatMoney(subtotal,currency)}</td>
                         <td></td>
                       </tr>
                       <tr>
-                        <td className="px-3 pt-2"></td>
                         <td className="px-3 pt-2 text-right text-gray-900">Final (editable)</td>
-                        <td className="px-3 pt-2 text-right text-2xl text-gray-700 font-bold w-64">
+                        <td className="px-3 pt-2 text-right text-2xl text-gray-700 font-bold">
                           <input
                             type="text"
                             className="w-full text-right text-2xl text-gray-700 font-bold bg-white border rounded px-2 py-0.5 focus:outline-none focus:ring-2 focus:ring-indigo-300"
@@ -417,7 +420,7 @@
                             }}
                           />
                         </td>
-                        <td className="px-3 pt-2 text-right text-2xl text-green-600 font-bold w-64">{formatMoney(total,currency)}</td>
+                        <td className="px-3 pt-2 text-right text-2xl text-green-600 font-bold">{formatMoney(total,currency)}</td>
                         <td></td>
                       </tr>
                     </tfoot>
