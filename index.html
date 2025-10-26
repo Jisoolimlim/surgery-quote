@@ -111,20 +111,11 @@
 
       const addCustomFromFields = () => {
         if (!customName || !customPriceKRW) return;
-        let price = customPriceKRW;
-        try {
-          if(customPriceKRW.includes('+') || customPriceKRW.includes('-') || 
-             customPriceKRW.includes('*') || customPriceKRW.includes('/')) {
-            price = String(Math.round(new Function('return ' + customPriceKRW)()));
-          }
-        } catch(err) {
-          console.error('Price calculation error:', err);
-        }
         setItems([...items, {
           catalogId: null,
           name: customName,
           qty: 1,
-          unitKRW: Number(price),
+          unitKRW: Number(customPriceKRW),
           note: ''
         }]);
         setCustomName('');
@@ -186,14 +177,12 @@
       const discountCurr = toCurr(discountKRW);
       const total = toCurr(totalKRW);
 
-      // Editable total fields (user can override the shown final price).
+      // Editable KRW final total (only KRW final total is editable; subtotal stays read-only)
       const [editTotalKRW, setEditTotalKRW] = useState(String(Math.round(totalKRW)));
-      const [editTotalCurr, setEditTotalCurr] = useState(String(total));
-      // Keep the edit boxes in sync when underlying values change (but allow temporary edits)
+      // Keep the edit box in sync when underlying totals change (but allow temporary edits)
       useEffect(() => {
         setEditTotalKRW(String(Math.round(totalKRW)));
-        setEditTotalCurr(String(total));
-      }, [totalKRW, total, currency]);
+      }, [totalKRW]);
 
       const copyAsMarkdown = () => {
         const lines=[];
@@ -266,34 +255,11 @@
                     />
                     <input
                       className="col-span-2 border rounded-lg p-1.5 text-xs text-right"
-                      placeholder="단가 (KRW) 수식가능"
+                      placeholder="단가 (KRW)"
+                      inputMode="number"
+                      step="1000"
                       value={customPriceKRW}
-                      onChange={e=>{
-                        const val = e.target.value;
-                        try {
-                          // 수식이 있는지 확인
-                          if(val.includes('+') || val.includes('-') || val.includes('*') || val.includes('/')) {
-                            // eval 대신 Function을 사용하여 더 안전하게 계산
-                            const calculated = new Function('return ' + val)();
-                            setCustomPriceKRW(val);
-                          } else {
-                            setCustomPriceKRW(val);
-                          }
-                        } catch(err) {
-                          setCustomPriceKRW(val);
-                        }
-                      }}
-                      onBlur={e=>{
-                        try {
-                          const val = e.target.value;
-                          if(val.includes('+') || val.includes('-') || val.includes('*') || val.includes('/')) {
-                            const calculated = new Function('return ' + val)();
-                            setCustomPriceKRW(String(Math.round(calculated)));
-                          }
-                        } catch(err) {
-                          // 수식이 잘못된 경우 그대로 유지
-                        }
-                      }}
+                      onChange={e=>setCustomPriceKRW(e.target.value)}
                       onKeyDown={e=>{ if(e.key==='Enter') addCustomFromFields(); }}
                     />
                     <button
@@ -392,33 +358,43 @@
                       <tr>
                         <td className="px-3 pt-2"></td>
                         <td className="px-3 pt-2 text-right text-gray-900">Subtotal</td>
-                          <td className="px-3 pt-2 text-right text-2xl text-gray-700 font-bold w-28">
-                            <input
-                              className="w-full text-right text-2xl text-gray-700 font-bold bg-transparent border-0"
-                              value={editTotalKRW}
-                              onChange={e => setEditTotalKRW(e.target.value)}
-                              onBlur={() => {
-                                // When user edits the KRW total, compute required discount (amount) to reach it
-                                const desired = Number(String(editTotalKRW).replace(/[^0-9.\-]/g, '')) || 0;
-                                const requiredDiscount = Math.max(0, subtotalKRW + taxKRW - Math.round(desired));
-                                setDiscount({ type: 'amount', value: Math.round(requiredDiscount) });
-                              }}
-                            />
-                          </td>
-                          <td className="px-3 pt-2 text-right text-2xl text-green-600 font-bold w-28">
-                            <input
-                              className="w-full text-right text-2xl text-green-600 font-bold bg-transparent border-0"
-                              value={editTotalCurr}
-                              onChange={e => setEditTotalCurr(e.target.value)}
-                              onBlur={() => {
-                                // When user edits the foreign-currency total, convert back to KRW and compute required discount
-                                const desiredC = Number(String(editTotalCurr).replace(/[^0-9.\-]/g, '')) || 0;
-                                const desiredKRW = Math.round(desiredC / (rate || 1));
-                                const requiredDiscount = Math.max(0, subtotalKRW + taxKRW - desiredKRW);
-                                setDiscount({ type: 'amount', value: Math.round(requiredDiscount) });
-                              }}
-                            />
-                          </td>
+                        <td className="px-3 pt-2 text-right text-2xl text-gray-700 font-bold w-28">{formatMoney(subtotalKRW,'KRW')}</td>
+                        <td className="px-3 pt-2 text-right text-2xl text-green-600 font-bold w-28">{formatMoney(subtotal,currency)}</td>
+                        <td></td>
+                      </tr>
+                      <tr>
+                        <td className="px-3 pt-2"></td>
+                        <td className="px-3 pt-2 text-right text-gray-900">Final (editable)</td>
+                        <td className="px-3 pt-2 text-right text-2xl text-gray-700 font-bold w-28">
+                          <input
+                            className="w-full text-right text-2xl text-gray-700 font-bold bg-transparent border-0"
+                            value={editTotalKRW}
+                            onChange={e => setEditTotalKRW(e.target.value)}
+                            onKeyDown={e => { if (e.key === 'Enter') e.target.blur(); }}
+                            onBlur={() => {
+                              // Accept numeric or simple expressions. Parse and compute desired KRW total.
+                              let raw = String(editTotalKRW || '').trim();
+                              let desiredKRW = 0;
+                              try {
+                                if (/[+\-*/]/.test(raw)) {
+                                  // evaluate simple expression
+                                  desiredKRW = Math.round(new Function('return ' + raw)());
+                                } else {
+                                  desiredKRW = Math.round(Number(raw.replace(/[^0-9.\-]/g, '')) || 0);
+                                }
+                              } catch (err) {
+                                desiredKRW = Math.round(Number(raw.replace(/[^0-9.\-]/g, '')) || 0);
+                              }
+                              // clamp desiredKRW
+                              if (!isFinite(desiredKRW) || Number.isNaN(desiredKRW)) desiredKRW = 0;
+                              setEditTotalKRW(String(desiredKRW));
+                              // Compute required discount in KRW to make final = desiredKRW
+                              const requiredDiscount = Math.max(0, subtotalKRW + taxKRW - desiredKRW);
+                              setDiscount({ type: 'amount', value: Math.round(requiredDiscount) });
+                            }}
+                          />
+                        </td>
+                        <td className="px-3 pt-2 text-right text-2xl text-green-600 font-bold w-28">{formatMoney(total,currency)}</td>
                         <td></td>
                       </tr>
                     </tfoot>
@@ -439,3 +415,4 @@
   </script>
 </body>
 </html>
+
