@@ -336,7 +336,29 @@
                               <input className="w-full mt-1 border rounded-lg p-2 text-xs text-gray-600" placeholder="" value={it.note} onChange={e=>updateItem(idx,{note:e.target.value})} />
                             </td>
                             <td className="px-3 py-2 text-right w-20">
-                              <div>{formatMoney(it.unitKRW,'KRW')}</div>
+                              {/* Editable KRW per-item (supports simple expressions) */}
+                              <input
+                                type="text"
+                                className="w-full text-right text-sm bg-white border rounded px-2 py-1"
+                                value={it.unitKRWInput !== undefined ? it.unitKRWInput : String(it.unitKRW)}
+                                onChange={e => updateItem(idx, { unitKRWInput: e.target.value })}
+                                onKeyDown={e => { if (e.key === 'Enter') e.target.blur(); }}
+                                onBlur={() => {
+                                  const raw = (it.unitKRWInput !== undefined ? String(it.unitKRWInput) : String(it.unitKRW)).trim();
+                                  let computed = 0;
+                                  try {
+                                    if (/[+\-*/]/.test(raw)) {
+                                      computed = Math.round(new Function('return ' + raw)());
+                                    } else {
+                                      computed = Math.round(Number(raw.replace(/[^0-9.\-]/g, '')) || 0);
+                                    }
+                                  } catch (err) {
+                                    computed = Math.round(Number(raw.replace(/[^0-9.\-]/g, '')) || 0);
+                                  }
+                                  if (!isFinite(computed) || Number.isNaN(computed)) computed = 0;
+                                  updateItem(idx, { unitKRW: Number(computed), unitKRWInput: undefined });
+                                }}
+                              />
                             </td>
                             <td className="px-3 py-2 text-right w-20">{formatMoney(unitC, currency)}</td>
                             
